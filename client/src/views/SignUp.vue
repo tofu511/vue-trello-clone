@@ -3,6 +3,7 @@
     <v-slide-y-transition mode="out-in">
       <v-layout column align-center>
         <v-form
+          v-if="!loading"
           v-model="valid"
           @submit.prevent="signUp"
           @keydown.prevent.enter
@@ -41,16 +42,18 @@
           ></v-text-field>
           <v-btn type="submit" :disabled="!valid">SignUp</v-btn>
         </v-form>
-        <!-- <v-progress-circular
+        <v-progress-circular
+          v-if="loading"
           indeterminate
           color="primary">
-        </v-progress-circular> -->
+        </v-progress-circular>
       </v-layout>
     </v-slide-y-transition>
   </v-container>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 
 export default {
   name: 'signUp',
@@ -66,10 +69,19 @@ export default {
     notEmptyRules: [(value) => !!value || 'Cannot be empty.'],
     confirmPasswordRules: [(confirmPassword) => confirmPassword === vm.user.password || 'Password must match.']
   }),
+  computed: {
+    ...mapState('users', { loading: 'isCreatePending' })
+  },
   methods: {
     signUp () {
       if (this.valid) {
-        console.log('the form is valid')
+        const { User } = this.$FeathersVuex.api
+        const user = new User(this.user)
+        user.save()
+          .then(user => {
+            console.log(user)
+            this.$router.push('/login')
+          })
       }
     }
   }
