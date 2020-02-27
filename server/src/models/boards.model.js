@@ -1,5 +1,5 @@
 // boards-model.js - A mongoose model
-// 
+//
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
 module.exports = function (app) {
@@ -7,7 +7,22 @@ module.exports = function (app) {
   const mongooseClient = app.get('mongooseClient');
   const { Schema } = mongooseClient;
   const schema = new Schema({
-    text: { type: String, required: true }
+    name: {
+      type: String,
+      required: true
+    },
+    background: {
+      type: String,
+      required: true
+    },
+    ownerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'users'
+    },
+    memberId: {
+      type: Schema.Types.ObjectId,
+      ref: 'users'
+    }
   }, {
     timestamps: true
   });
@@ -18,5 +33,5 @@ module.exports = function (app) {
     mongooseClient.deleteModel(modelName);
   }
   return mongooseClient.model(modelName, schema);
-  
+
 };
