@@ -57,7 +57,7 @@ export default {
           strategy: 'local',
           ...this.user
         }).then(() => {
-          console.log('logged in!')
+          this.$router.push('/boards')
         }).catch(e => {
           console.error('Authentication error', e)
         })
