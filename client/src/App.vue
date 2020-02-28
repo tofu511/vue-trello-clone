@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-toolbar dense max-height="48px" color="#79d8aef5">
+    <v-toolbar dense max-height="48px" color="teal accent-4">
       <v-toolbar-title>Trello Clone</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items v-if="!payload">
@@ -22,7 +22,7 @@
     <v-content>
       <router-view />
     </v-content>
-    <v-footer :fixed="true" color="#79d8aef5" app>
+    <v-footer :fixed="true" color="teal accent-4" app>
       <span>&copy; 2020 - Made with ❤️</span>
     </v-footer>
   </v-app>

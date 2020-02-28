@@ -25,42 +25,41 @@
               </v-card-actions>
             </v-card>
           </v-col>
+          <v-col cols="3">
+            <v-card>
+              <v-card-title>Create Board</v-card-title>
+                <v-card-text class="text--primary">
+                  <div>
+                    <v-form
+                      v-if="!creating"
+                      v-model="valid"
+                      @submit.prevent="createBoard"
+                      @keydown.prevent.enter
+                      >
+                      <v-text-field
+                        v-model="board.name"
+                        :rules="notEmptyRules"
+                        label="Name"
+                        required
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="board.background"
+                        :rules="notEmptyRules"
+                        label="Background"
+                        required
+                      ></v-text-field>
+                      <v-btn type="submit" :disabled="!valid" color="primary">Create</v-btn>
+                    </v-form>
+                    <v-progress-circular
+                      v-if="creating"
+                      indeterminate
+                      color="primary">
+                    </v-progress-circular>
+                  </div>
+                </v-card-text>
+            </v-card>
+          </v-col>
         </v-row>
-        <v-card
-          class="mx-auto"
-          max-width="400"
-        >
-          <v-card-title>Create Board</v-card-title>
-            <v-card-text class="text--primary">
-              <div>
-                <v-form
-                  v-if="!creating"
-                  v-model="valid"
-                  @submit.prevent="createBoard"
-                  @keydown.prevent.enter
-                  >
-                  <v-text-field
-                    v-model="board.name"
-                    :rules="notEmptyRules"
-                    label="Name"
-                    required
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="board.background"
-                    :rules="notEmptyRules"
-                    label="Background"
-                    required
-                  ></v-text-field>
-                  <v-btn type="submit" :disabled="!valid">Create</v-btn>
-                </v-form>
-                <v-progress-circular
-                  v-if="creating"
-                  indeterminate
-                  color="primary">
-                </v-progress-circular>
-              </div>
-            </v-card-text>
-        </v-card>
       </v-layout>
     </v-slide-y-transition>
   </v-container>

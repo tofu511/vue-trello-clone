@@ -16,15 +16,39 @@
         </v-progress-circular>
         <v-row v-if="!loadingLists" dense>
           <v-col v-for="list in lists" :key="list._id" cols="3">
-            <v-card>
+            <v-card @dragover="setDroppingList($event, list)" :class="{ 'teal accent-4': droppingList == list}">
               <v-card-title>
                 {{ list.name }}
               </v-card-title>
               <v-card-actions>
-                <card
-                  :listId="list._id"
-                  :boardId="$route.params.id"
-                ></card>
+                <v-row v-if="cardsByListId[list._id]" dense>
+                  <v-col
+                    v-for="card in cardsByListId[list._id]"
+                    :key="card._id"
+                    cols="12"
+                  >
+                    <v-card
+                      draggable="true"
+                      @dragstart="startDraggingCard(card)"
+                      @dragend="dropCard()"
+                    >
+                      <div class="d-flex flex-no-wrap justify-space-between">
+                        <div>
+                          <v-card-title
+                            class="headline"
+                            v-text="card.title"
+                          ></v-card-title>
+                          <v-card-subtitle v-text="card.description"></v-card-subtitle>
+                        </div>
+                      </div>
+                    </v-card>
+                  </v-col>
+                    <create-card
+                      :listId="list._id"
+                      :boardId="$route.params.id"
+                    >
+                    </create-card>
+                </v-row>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -45,7 +69,7 @@
                         label="Name"
                         required
                       ></v-text-field>
-                      <v-btn type="submit" :disabled="!validList">Create</v-btn>
+                      <v-btn type="submit" :disabled="!validList" color="primary">Create</v-btn>
                     </v-form>
                     <v-progress-circular
                       v-if="creatingList"
@@ -64,12 +88,12 @@
 
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex'
-import Card from '@/components/Card'
+import CreateCard from '@/components/CreateCard'
 
 export default {
   name: 'board',
   components: {
-    Card
+    CreateCard
   },
   data: () => ({
     validList: false,
@@ -78,11 +102,18 @@ export default {
       order: 0,
       archived: false
     },
+    draggingCard: null,
+    droppingList: null,
     notEmptyRules: [(value) => !!value || 'Cannot be empty.']
   }),
   mounted () {
     this.getBoard(this.$route.params.id)
     this.findLists({
+      query: {
+        boardId: this.$route.params.id
+      }
+    })
+    this.findCards({
       query: {
         boardId: this.$route.params.id
       }
@@ -98,6 +129,7 @@ export default {
     }),
     ...mapGetters('boards', { getBoardInStore: 'get' }),
     ...mapGetters('lists', { findListsInStore: 'find' }),
+    ...mapGetters('cards', { findCardsInStore: 'find' }),
     board () {
       return this.getBoardInStore(this.$route.params.id)
     },
@@ -107,11 +139,26 @@ export default {
           boardId: this.$route.params.id
         }
       }).data
+    },
+    cards () {
+      return this.findCardsInStore({
+        query: {
+          boardId: this.$route.params.id
+        }
+      }).data
+    },
+    cardsByListId () {
+      return this.cards.reduce((byId, card) => {
+        byId[card.listId] = byId[card.listId] || []
+        byId[card.listId].push(card)
+        return byId
+      }, {})
     }
   },
   methods: {
     ...mapActions('boards', { getBoard: 'get' }),
     ...mapActions('lists', { findLists: 'find' }),
+    ...mapActions('cards', { findCards: 'find' }),
     createList () {
       if (this.validList) {
         const { List } = this.$FeathersVuex.api
@@ -124,6 +171,21 @@ export default {
           archived: false
         }
       }
+    },
+    setDroppingList (event, list) {
+      this.droppingList = list
+      event.preventDefault()
+    },
+    startDraggingCard (card) {
+      this.draggingCard = card
+    },
+    dropCard () {
+      if (this.droppingList) {
+        this.draggingCard.listId = this.droppingList._id
+        this.draggingCard.save()
+      }
+      this.droppingList = null
+      this.draggingCard = null
     }
   }
 }
