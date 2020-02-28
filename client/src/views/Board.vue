@@ -20,38 +20,43 @@
               <v-card-title>
                 {{ list.name }}
               </v-card-title>
+              <v-card-actions>
+                <card
+                  :listId="list._id"
+                  :boardId="$route.params.id"
+                ></card>
+              </v-card-actions>
+            </v-card>
+          </v-col>
+          <v-col cols="3">
+            <v-card>
+              <v-card-title>Create List</v-card-title>
+                <v-card-text class="text--primary">
+                  <div>
+                    <v-form
+                      v-if="!creatingList"
+                      v-model="validList"
+                      @submit.prevent="createList"
+                      @keydown.prevent.enter
+                      >
+                      <v-text-field
+                        v-model="list.name"
+                        :rules="notEmptyRules"
+                        label="Name"
+                        required
+                      ></v-text-field>
+                      <v-btn type="submit" :disabled="!validList">Create</v-btn>
+                    </v-form>
+                    <v-progress-circular
+                      v-if="creatingList"
+                      indeterminate
+                      color="primary">
+                    </v-progress-circular>
+                  </div>
+                </v-card-text>
             </v-card>
           </v-col>
         </v-row>
-        <v-card
-          class="mx-auto"
-          max-width="400"
-        >
-          <v-card-title>Create List</v-card-title>
-            <v-card-text class="text--primary">
-              <div>
-                <v-form
-                  v-if="!creatingList"
-                  v-model="validList"
-                  @submit.prevent="createList"
-                  @keydown.prevent.enter
-                  >
-                  <v-text-field
-                    v-model="list.name"
-                    :rules="notEmptyRules"
-                    label="Name"
-                    required
-                  ></v-text-field>
-                  <v-btn type="submit" :disabled="!validList">Create</v-btn>
-                </v-form>
-                <v-progress-circular
-                  v-if="creatingList"
-                  indeterminate
-                  color="primary">
-                </v-progress-circular>
-              </div>
-            </v-card-text>
-        </v-card>
       </v-layout>
     </v-slide-y-transition>
   </v-container>
@@ -59,9 +64,13 @@
 
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex'
+import Card from '@/components/Card'
 
 export default {
   name: 'board',
+  components: {
+    Card
+  },
   data: () => ({
     validList: false,
     list: {
