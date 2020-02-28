@@ -73,7 +73,6 @@ export default {
   name: 'boards',
   data: () => ({
     valid: false,
-    // boards: {},
     board: {
       name: '',
       background: ''
@@ -81,16 +80,25 @@ export default {
     notEmptyRules: [(value) => !!value || 'Cannot be empty.']
   }),
   mounted () {
-    this.findBoards({ query: {} })
+    this.findBoards({
+      query: {
+        ownerId: this.payload.user._id
+      }
+    })
   },
   computed: {
+    ...mapState('auth', { payload: 'payload' }),
     ...mapState('boards', {
       loading: 'isFindPenging',
       creating: 'isCreatePending'
     }),
     ...mapGetters('boards', { findBoardsInStore: 'find' }),
     boards () {
-      return this.findBoardsInStore({ query: {} }).data
+      return this.findBoardsInStore({
+        query: {
+          ownerId: this.payload.user._id
+        }
+      }).data
     }
   },
   methods: {

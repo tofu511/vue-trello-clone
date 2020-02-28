@@ -1,17 +1,23 @@
 <template>
   <v-container fluid>
+    <v-layout column align-left>
+      <v-row>
+        <v-col cols="12">
+          <h2 v-if="board">{{ board.name }}</h2>
+        </v-col>
+      </v-row>
+    </v-layout>
     <v-slide-y-transition mode="out-in">
-      <v-layout column align-center>
+      <v-layout column align-left>
         <v-progress-circular
-          v-if="loading"
+          v-if="loadingBoard || loadingLists"
           indeterminate
           color="primary">
         </v-progress-circular>
-        <h2>{{ board.name }}</h2>
-        <v-row v-if="!loading" dense>
+        <v-row v-if="!loadingLists" dense>
           <v-col v-for="list in lists" :key="list._id" cols="3">
             <v-card>
-              <v-card-title primary-title>
+              <v-card-title>
                 {{ list.name }}
               </v-card-title>
             </v-card>
@@ -59,32 +65,54 @@ export default {
   data: () => ({
     validList: false,
     list: {
-      name: ''
+      name: '',
+      order: 0,
+      archived: false
     },
     notEmptyRules: [(value) => !!value || 'Cannot be empty.']
   }),
   mounted () {
     this.getBoard(this.$route.params.id)
+    this.findLists({
+      query: {
+        boardId: this.$route.params.id
+      }
+    })
   },
   computed: {
     ...mapState('boards', {
-      loading: 'isGetPenging',
+      loadingBoard: 'isGetPenging'
+    }),
+    ...mapState('lists', {
+      loadingLists: 'isFindPenging',
       creatingList: 'isCreatePending'
     }),
     ...mapGetters('boards', { getBoardInStore: 'get' }),
+    ...mapGetters('lists', { findListsInStore: 'find' }),
     board () {
       return this.getBoardInStore(this.$route.params.id)
+    },
+    lists () {
+      return this.findListsInStore({
+        query: {
+          boardId: this.$route.params.id
+        }
+      }).data
     }
   },
   methods: {
     ...mapActions('boards', { getBoard: 'get' }),
+    ...mapActions('lists', { findLists: 'find' }),
     createList () {
       if (this.validList) {
         const { List } = this.$FeathersVuex.api
+        this.list.boardId = this.$route.params.id
         const list = new List(this.list)
         list.save()
         this.list = {
-          name: ''
+          name: '',
+          order: 0,
+          archived: false
         }
       }
     }

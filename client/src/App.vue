@@ -3,12 +3,20 @@
     <v-toolbar dense max-height="48px" color="#79d8aef5">
       <v-toolbar-title>Trello Clone</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items v-if="!user">
+      <v-toolbar-items v-if="!payload">
           <v-btn text :to="{ name: 'SignUp' }">SignUp</v-btn>
           <v-btn text :to="{ name: 'Login' }">Login</v-btn>
       </v-toolbar-items>
-      <v-toolbar-items v-if="user">
-          <v-btn text @click="logout">Logout</v-btn>
+      <v-toolbar-items v-if="payload">
+        <v-row justify="center" align="center">
+        <v-btn text @click="logout">Logout</v-btn>
+          <v-avatar size="42">
+            <v-img
+              :src="payload.user.imageUrl"
+              alt="User Avator"
+            />
+          </v-avatar>
+        </v-row>
       </v-toolbar-items>
     </v-toolbar>
     <v-content>
@@ -28,7 +36,7 @@ export default {
   data: () => ({
   }),
   computed: {
-    ...mapState('auth', { user: 'payload' })
+    ...mapState('auth', { payload: 'payload' })
   },
   methods: {
     ...mapActions('auth', { authLogout: 'logout' }),
