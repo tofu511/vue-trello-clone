@@ -8,7 +8,7 @@
           color="primary">
         </v-progress-circular>
         <v-row v-if="!loading" dense>
-          <v-col v-for="board in boards" :key="board._id" cols="4">
+          <v-col v-for="board in boards" :key="board._id" cols="3">
             <v-card>
               <v-img
                 white--text align-end
@@ -20,6 +20,9 @@
               <v-card-title primary-title>
                 {{ board.name }}
               </v-card-title>
+              <v-card-actions>
+                <v-btn color="primary">Go</v-btn>
+              </v-card-actions>
             </v-card>
           </v-col>
         </v-row>
@@ -77,7 +80,7 @@ export default {
     notEmptyRules: [(value) => !!value || 'Cannot be empty.']
   }),
   mounted () {
-    // this.findBoards({ query: {} })
+    this.findBoards({ query: {} })
   },
   computed: {
     ...mapState('boards', {
@@ -93,10 +96,9 @@ export default {
     ...mapActions('boards', { findBoards: 'find' }),
     createBoard () {
       if (this.valid) {
-        // TODO boardにしたい
-        const { Boards } = this.$FeathersVuex.api
-        const boards = new Boards(this.board)
-        boards.save()
+        const { Board } = this.$FeathersVuex.api
+        const board = new Board(this.board)
+        board.save()
         this.board = {
           name: '',
           background: ''
