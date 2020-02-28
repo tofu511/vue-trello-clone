@@ -21,7 +21,7 @@
                 {{ board.name }}
               </v-card-title>
               <v-card-actions>
-                <v-btn color="primary">Go</v-btn>
+                <v-btn color="primary" :to="{ name: 'Board', params: { id: board._id }}">Go</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -73,6 +73,7 @@ export default {
   name: 'boards',
   data: () => ({
     valid: false,
+    // boards: {},
     board: {
       name: '',
       background: ''
