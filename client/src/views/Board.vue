@@ -2,6 +2,11 @@
   <v-container fluid>
     <v-layout column align-left>
       <v-row>
+        <v-col xs12 v-if="boardsError != null">
+          <v-alert :value="boardsError != null" type="error">
+            {{ boardsError.message }}
+          </v-alert>
+        </v-col>
         <v-col cols="12">
           <h2 v-if="board">{{ board.name }}</h2>
         </v-col>
@@ -16,7 +21,9 @@
         </v-progress-circular>
         <v-row v-if="!loadingLists" dense>
           <v-col v-for="list in lists" :key="list._id" cols="3">
-            <v-card @dragover="setDroppingList($event, list)" :class="{ 'teal accent-4': droppingList == list}">
+            <v-card
+              @dragover="setDroppingList($event, list)"
+              :class="{ 'teal accent-4': droppingList == list}">
               <v-card-title>
                 {{ list.name }}
               </v-card-title>
@@ -121,11 +128,16 @@ export default {
   },
   computed: {
     ...mapState('boards', {
-      loadingBoard: 'isGetPenging'
+      loadingBoard: 'isGetPenging',
+      boardsError: 'errorOnGet'
     }),
     ...mapState('lists', {
       loadingLists: 'isFindPenging',
-      creatingList: 'isCreatePending'
+      creatingList: 'isCreatePending',
+      listsError: 'errorOnfind'
+    }),
+    ...mapState('cards', {
+      cardsError: 'errorOnfind'
     }),
     ...mapGetters('boards', { getBoardInStore: 'get' }),
     ...mapGetters('lists', { findListsInStore: 'find' }),
