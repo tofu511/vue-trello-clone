@@ -1,8 +1,9 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
+const isBoardOwner = require('../../hooks/autholization');
 
 module.exports = {
   before: {
-    all: [ authenticate('jwt') ],
+    all: [ authenticate('jwt'), isBoardOwner() ],
     find: [],
     get: [],
     create: [],
