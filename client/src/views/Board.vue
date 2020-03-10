@@ -125,8 +125,14 @@ export default {
         boardId: this.$route.params.id
       }
     })
+    this.findActivities({
+      query: {
+        boardId: this.$route.params.id
+      }
+    })
   },
   computed: {
+    ...mapState('auth', { payload: 'payload' }),
     ...mapState('boards', {
       loadingBoard: 'isGetPenging',
       boardsError: 'errorOnGet'
@@ -142,8 +148,16 @@ export default {
     ...mapGetters('boards', { getBoardInStore: 'get' }),
     ...mapGetters('lists', { findListsInStore: 'find' }),
     ...mapGetters('cards', { findCardsInStore: 'find' }),
+    ...mapGetters('activities', { findActivitiesInStore: 'find' }),
     board () {
       return this.getBoardInStore(this.$route.params.id)
+    },
+    activities () {
+      return this.findActivitiesInStore({
+        query: {
+          boardId: this.$route.params.id
+        }
+      }).data
     },
     lists () {
       return this.findListsInStore({
@@ -171,17 +185,22 @@ export default {
     ...mapActions('boards', { getBoard: 'get' }),
     ...mapActions('lists', { findLists: 'find' }),
     ...mapActions('cards', { findCards: 'find' }),
-    createList () {
+    ...mapActions('activities', { findActivities: 'find' }),
+    async createList () {
       if (this.validList) {
-        const { List } = this.$FeathersVuex.api
+        const { List, Activity } = this.$FeathersVuex.api
         this.list.boardId = this.$route.params.id
         const list = new List(this.list)
-        list.save()
+        await list.save()
         this.list = {
           name: '',
           order: 0,
           archived: false
         }
+        const activity = new Activity()
+        activity.text = `${this.payload.user.displayName} created list: ${list.name}`
+        activity.boardId = this.$route.params.id
+        activity.save()
       }
     },
     setDroppingList (event, list) {
