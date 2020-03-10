@@ -1,9 +1,9 @@
 <template>
   <v-container fluid>
     <v-slide-y-transition mode="out-in">
-      <v-layout column align-center>
+      <v-row justify="center">
         <h1>Loading...</h1>
-      </v-layout>
+      </v-row>
     </v-slide-y-transition>
   </v-container>
 </template>

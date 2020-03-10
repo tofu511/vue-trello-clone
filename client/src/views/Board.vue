@@ -1,94 +1,90 @@
 <template>
   <v-container fluid>
-    <v-layout column align-left>
-      <v-row>
-        <v-col xs12 v-if="boardsError != null">
-          <v-alert :value="boardsError != null" type="error">
-            {{ boardsError.message }}
-          </v-alert>
+    <v-row>
+      <v-col xs12 v-if="boardsError != null">
+        <v-alert :value="boardsError != null" type="error">
+          {{ boardsError.message }}
+        </v-alert>
+      </v-col>
+      <v-col cols="12">
+        <h2 v-if="board">{{ board.name }}</h2>
+      </v-col>
+    </v-row>
+    <v-slide-y-transition mode="out-in">
+      <v-progress-circular
+        v-if="loadingBoard || loadingLists"
+        indeterminate
+        color="primary">
+      </v-progress-circular>
+      <v-row v-if="!loadingLists" dense>
+        <v-col v-for="list in lists" :key="list._id" cols="3">
+          <v-card
+            @dragover="setDroppingList($event, list)"
+            :class="{ 'teal accent-4': droppingList == list}">
+            <v-card-title>
+              {{ list.name }}
+            </v-card-title>
+            <v-card-actions>
+              <v-row v-if="cardsByListId[list._id]" dense>
+                <v-col
+                  v-for="card in cardsByListId[list._id]"
+                  :key="card._id"
+                  cols="12"
+                >
+                  <v-card
+                    draggable="true"
+                    @dragstart="startDraggingCard(card)"
+                    @dragend="dropCard()"
+                  >
+                    <div class="d-flex flex-no-wrap justify-space-between">
+                      <div>
+                        <v-card-title
+                          class="headline"
+                          v-text="card.title"
+                        ></v-card-title>
+                        <v-card-subtitle v-text="card.description"></v-card-subtitle>
+                      </div>
+                    </div>
+                  </v-card>
+                </v-col>
+                  <create-card
+                    :listId="list._id"
+                    :boardId="$route.params.id"
+                  >
+                  </create-card>
+              </v-row>
+            </v-card-actions>
+          </v-card>
         </v-col>
-        <v-col cols="12">
-          <h2 v-if="board">{{ board.name }}</h2>
+        <v-col cols="3">
+          <v-card>
+            <v-card-title>Create List</v-card-title>
+              <v-card-text class="text--primary">
+                <div>
+                  <v-form
+                    v-if="!creatingList"
+                    v-model="validList"
+                    @submit.prevent="createList"
+                    @keydown.prevent.enter
+                    >
+                    <v-text-field
+                      v-model="list.name"
+                      :rules="notEmptyRules"
+                      label="Name"
+                      required
+                    ></v-text-field>
+                    <v-btn type="submit" :disabled="!validList" color="primary">Create</v-btn>
+                  </v-form>
+                  <v-progress-circular
+                    v-if="creatingList"
+                    indeterminate
+                    color="primary">
+                  </v-progress-circular>
+                </div>
+              </v-card-text>
+          </v-card>
         </v-col>
       </v-row>
-    </v-layout>
-    <v-slide-y-transition mode="out-in">
-      <v-layout column align-left>
-        <v-progress-circular
-          v-if="loadingBoard || loadingLists"
-          indeterminate
-          color="primary">
-        </v-progress-circular>
-        <v-row v-if="!loadingLists" dense>
-          <v-col v-for="list in lists" :key="list._id" cols="3">
-            <v-card
-              @dragover="setDroppingList($event, list)"
-              :class="{ 'teal accent-4': droppingList == list}">
-              <v-card-title>
-                {{ list.name }}
-              </v-card-title>
-              <v-card-actions>
-                <v-row v-if="cardsByListId[list._id]" dense>
-                  <v-col
-                    v-for="card in cardsByListId[list._id]"
-                    :key="card._id"
-                    cols="12"
-                  >
-                    <v-card
-                      draggable="true"
-                      @dragstart="startDraggingCard(card)"
-                      @dragend="dropCard()"
-                    >
-                      <div class="d-flex flex-no-wrap justify-space-between">
-                        <div>
-                          <v-card-title
-                            class="headline"
-                            v-text="card.title"
-                          ></v-card-title>
-                          <v-card-subtitle v-text="card.description"></v-card-subtitle>
-                        </div>
-                      </div>
-                    </v-card>
-                  </v-col>
-                    <create-card
-                      :listId="list._id"
-                      :boardId="$route.params.id"
-                    >
-                    </create-card>
-                </v-row>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-          <v-col cols="3">
-            <v-card>
-              <v-card-title>Create List</v-card-title>
-                <v-card-text class="text--primary">
-                  <div>
-                    <v-form
-                      v-if="!creatingList"
-                      v-model="validList"
-                      @submit.prevent="createList"
-                      @keydown.prevent.enter
-                      >
-                      <v-text-field
-                        v-model="list.name"
-                        :rules="notEmptyRules"
-                        label="Name"
-                        required
-                      ></v-text-field>
-                      <v-btn type="submit" :disabled="!validList" color="primary">Create</v-btn>
-                    </v-form>
-                    <v-progress-circular
-                      v-if="creatingList"
-                      indeterminate
-                      color="primary">
-                    </v-progress-circular>
-                  </div>
-                </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-layout>
     </v-slide-y-transition>
   </v-container>
 </template>
