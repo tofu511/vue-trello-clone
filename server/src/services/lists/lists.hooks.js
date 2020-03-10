@@ -1,8 +1,14 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
+// const isBoardOwner = require('../../authorization.hooks');
 const mongoose = require('mongoose');
 
 const isBoardOwner = async (context) => {
-  const { boardId } = context.params.query;
+  let { boardId } = context.params.query || context.data.boardId;
+
+  if (!boardId) {
+    return context;
+  }
+
   const { _id } = context.params.user._id;
   const boards = mongoose.model('boards');
   const board = await boards.findOne({ _id: boardId });
@@ -17,10 +23,15 @@ const isBoardOwner = async (context) => {
   return context;
 };
 
+// module.exports = {
+//   isBoardOwner
+// };
+
+
 module.exports = {
   before: {
-    all: [ authenticate('jwt') ],
-    find: [ isBoardOwner ],
+    all: [ authenticate('jwt'), isBoardOwner ],
+    find: [],
     get: [],
     create: [],
     update: [],

@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-toolbar dense max-height="48px" color="teal accent-4">
-      <v-toolbar-title>Trello Clone</v-toolbar-title>
+      <v-btn text :to="{ name: 'Home' }">Trello Clone</v-btn>
       <v-spacer></v-spacer>
       <v-toolbar-items v-if="!payload">
           <v-btn text :to="{ name: 'SignUp' }">SignUp</v-btn>
