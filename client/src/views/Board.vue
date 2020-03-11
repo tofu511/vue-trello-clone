@@ -29,7 +29,7 @@
     >
       <v-list dense>
         <v-list-item
-          v-for="(activity, index) in activities.slice().reverse()"
+          v-for="(activity, index) in reversedActivities"
           :key="index"
           link
         >
@@ -186,6 +186,9 @@ export default {
           boardId: this.$route.params.id
         }
       }).data
+    },
+    reversedActivities () {
+      return this.activities.slice().reverse()
     },
     lists () {
       return this.findListsInStore({
