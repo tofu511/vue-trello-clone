@@ -1,91 +1,122 @@
 <template>
   <v-container fluid>
     <v-row>
-      <v-col xs12 v-if="boardsError != null">
+      <v-col v-if="boardsError != null">
         <v-alert :value="boardsError != null" type="error">
           {{ boardsError.message }}
         </v-alert>
       </v-col>
-      <v-col cols="12">
+    </v-row>
+    <v-row justify="space-between">
+      <v-col cols="11">
         <h2 v-if="board">{{ board.name }}</h2>
       </v-col>
+      <v-col cols="1">
+        <v-btn
+          color="teal accent-4"
+          dark
+          @click.stop="drawer = !drawer"
+        >Activities
+        </v-btn>
+      </v-col>
     </v-row>
-    <v-slide-y-transition mode="out-in">
-      <v-progress-circular
-        v-if="loadingBoard || loadingLists"
-        indeterminate
-        color="primary">
-      </v-progress-circular>
-      <v-row v-if="!loadingLists" dense>
-        <v-col v-for="list in lists" :key="list._id" cols="3">
-          <v-card
-            @dragover="setDroppingList($event, list)"
-            :class="{ 'teal accent-4': droppingList == list}">
-            <v-card-title>
-              {{ list.name }}
-            </v-card-title>
-            <v-card-actions>
-              <v-row v-if="cardsByListId[list._id]" dense>
-                <v-col
-                  v-for="card in cardsByListId[list._id]"
-                  :key="card._id"
-                  cols="12"
+    <v-navigation-drawer
+      v-model="drawer"
+      absolute
+      temporary
+      right
+      width="400px"
+    >
+      <v-list dense>
+        <v-list-item
+          v-for="(activity, index) in activities.slice().reverse()"
+          :key="index"
+          link
+        >
+          <v-row>
+            <v-col cols="12">
+              <v-card>
+                <v-card-subtitle>{{ activity.text }}</v-card-subtitle>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+    <v-progress-circular
+      v-if="loadingBoard || loadingLists"
+      indeterminate
+      color="primary">
+    </v-progress-circular>
+    <v-row v-if="!loadingLists" dense>
+      <v-col v-for="list in lists" :key="list._id" cols="2">
+        <v-card
+          @dragover="setDroppingList($event, list)"
+          :class="{ 'teal accent-4': droppingList == list}">
+          <v-card-title>
+            {{ list.name }}
+          </v-card-title>
+          <v-card-actions>
+            <v-row v-if="cardsByListId[list._id]" dense>
+              <v-col
+                v-for="card in cardsByListId[list._id]"
+                :key="card._id"
+                cols="12"
+              >
+                <v-card
+                  draggable="true"
+                  @dragstart="startDraggingCard(card)"
+                  @dragend="dropCard()"
                 >
-                  <v-card
-                    draggable="true"
-                    @dragstart="startDraggingCard(card)"
-                    @dragend="dropCard()"
-                  >
-                    <div class="d-flex flex-no-wrap justify-space-between">
-                      <div>
-                        <v-card-title
-                          class="headline"
-                          v-text="card.title"
-                        ></v-card-title>
-                        <v-card-subtitle v-text="card.description"></v-card-subtitle>
-                      </div>
+                  <div class="d-flex flex-no-wrap justify-space-between">
+                    <div>
+                      <v-card-title
+                        class="headline"
+                        v-text="card.title"
+                      ></v-card-title>
+                      <v-card-subtitle v-text="card.description"></v-card-subtitle>
                     </div>
-                  </v-card>
-                </v-col>
-                  <create-card
-                    :listId="list._id"
-                    :boardId="$route.params.id"
+                  </div>
+                </v-card>
+              </v-col>
+                <create-card
+                  :listId="list._id"
+                  :boardId="$route.params.id"
+                >
+                </create-card>
+            </v-row>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+      <v-col cols="3">
+        <v-card>
+          <v-card-title>Create List</v-card-title>
+            <v-card-text class="text--primary">
+              <div>
+                <v-form
+                  v-if="!creatingList"
+                  v-model="validList"
+                  @submit.prevent="createList"
+                  @keydown.prevent.enter
                   >
-                  </create-card>
-              </v-row>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-        <v-col cols="3">
-          <v-card>
-            <v-card-title>Create List</v-card-title>
-              <v-card-text class="text--primary">
-                <div>
-                  <v-form
-                    v-if="!creatingList"
-                    v-model="validList"
-                    @submit.prevent="createList"
-                    @keydown.prevent.enter
-                    >
-                    <v-text-field
-                      v-model="list.name"
-                      :rules="notEmptyRules"
-                      label="Name"
-                      required
-                    ></v-text-field>
-                    <v-btn type="submit" :disabled="!validList" color="primary">Create</v-btn>
-                  </v-form>
-                  <v-progress-circular
-                    v-if="creatingList"
-                    indeterminate
-                    color="primary">
-                  </v-progress-circular>
-                </div>
-              </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-slide-y-transition>
+                  <v-text-field
+                    v-model="list.name"
+                    :rules="notEmptyRules"
+                    label="Name"
+                    required
+                  ></v-text-field>
+                  <v-btn type="submit" :disabled="!validList" color="primary">Create</v-btn>
+                </v-form>
+                <v-progress-circular
+                  v-if="creatingList"
+                  indeterminate
+                  color="primary">
+                </v-progress-circular>
+              </div>
+            </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -107,6 +138,7 @@ export default {
     },
     draggingCard: null,
     droppingList: null,
+    drawer: false,
     notEmptyRules: [(value) => !!value || 'Cannot be empty.']
   }),
   mounted () {
