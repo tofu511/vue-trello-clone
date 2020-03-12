@@ -1,5 +1,5 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
-const  isBoardOwner  = require('../../hooks/autholization');
+const isBoardOwner = require('../../hooks/autholization');
 
 module.exports = {
   before: {

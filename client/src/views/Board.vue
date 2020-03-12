@@ -29,14 +29,15 @@
     >
       <v-list dense>
         <v-list-item
-          v-for="(activity, index) in reversedActivities"
-          :key="index"
+          v-for="activity in reversedActivities"
+          :key="activity._id"
           link
         >
           <v-row>
             <v-col cols="12">
               <v-card>
-                <v-card-subtitle>{{ activity.text }}</v-card-subtitle>
+                <v-card-subtitle v-html="markdownifyText(activity.text)">
+                </v-card-subtitle>
               </v-card>
             </v-col>
           </v-row>
@@ -121,6 +122,7 @@
 </template>
 
 <script>
+import marked from 'marked'
 import { mapActions, mapState, mapGetters } from 'vuex'
 import CreateCard from '@/components/CreateCard'
 
@@ -219,7 +221,7 @@ export default {
     ...mapActions('activities', { findActivities: 'find' }),
     async createList () {
       if (this.validList) {
-        const { List, Activity } = this.$FeathersVuex.api
+        const { List } = this.$FeathersVuex.api
         this.list.boardId = this.$route.params.id
         const list = new List(this.list)
         await list.save()
@@ -228,11 +230,15 @@ export default {
           order: 0,
           archived: false
         }
-        const activity = new Activity()
-        activity.text = `${this.payload.user.displayName} created list: ${list.name}`
-        activity.boardId = this.$route.params.id
-        activity.save()
+        this.createActivity(`**${this.payload.user.displayName}** created list: **${list.name}**`)
       }
+    },
+    createActivity (text) {
+      const { Activity } = this.$FeathersVuex.api
+      const activity = new Activity()
+      activity.text = text
+      activity.boardId = this.$route.params.id
+      activity.save()
     },
     setDroppingList (event, list) {
       this.droppingList = list
@@ -241,13 +247,19 @@ export default {
     startDraggingCard (card) {
       this.draggingCard = card
     },
-    dropCard () {
-      if (this.droppingList) {
+    async dropCard () {
+      if (this.droppingList && this.draggingCard.listId !== this.droppingList._id) {
+        const fromList = this.lists.find(list => list._id === this.draggingCard.listId)
+        const toList = this.lists.find(list => list._id === this.droppingList._id)
         this.draggingCard.listId = this.droppingList._id
-        this.draggingCard.save()
+        await this.draggingCard.save()
+        this.createActivity(`**${this.payload.user.displayName}** moved card **${this.draggingCard.title}** from **${fromList.name}** to **${toList.name}**`)
       }
       this.droppingList = null
       this.draggingCard = null
+    },
+    markdownifyText (text) {
+      return marked(text)
     }
   }
 }
