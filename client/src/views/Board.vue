@@ -83,6 +83,8 @@
                 <create-card
                   :listId="list._id"
                   :boardId="$route.params.id"
+                  :createActivity="createActivity"
+                  :user="payload.user"
                 >
                 </create-card>
             </v-row>

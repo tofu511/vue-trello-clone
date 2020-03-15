@@ -38,6 +38,14 @@ export default {
     boardId: {
       type: String,
       required: true
+    },
+    createActivity: {
+      type: Function,
+      required: true
+    },
+    user: {
+      type: Object,
+      required: true
     }
   },
   data: () => ({
@@ -56,13 +64,14 @@ export default {
     })
   },
   methods: {
-    createCard () {
+    async createCard () {
       if (this.validCard) {
         const { Card } = this.$FeathersVuex.api
         this.card.boardId = this.boardId
         this.card.listId = this.listId
         const card = new Card(this.card)
-        card.save()
+        await card.save()
+        this.createActivity(`**${this.user.displayName}** created card: **${card.title}**`)
         this.card = {
           title: '',
           order: 0,
