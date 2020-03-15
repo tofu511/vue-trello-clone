@@ -58,7 +58,7 @@
             {{ list.name }}
           </v-card-title>
           <v-card-actions>
-            <v-row v-if="cardsByListId[list._id]" dense>
+            <v-row dense>
               <v-col
                 v-for="card in cardsByListId[list._id]"
                 :key="card._id"
